@@ -30,7 +30,13 @@ end
 
 --- Adds the wezterm plugin directory to the lua path
 local function enable_sub_modules()
-	plugin_dir = wezterm.plugin.list()[1].plugin_dir:gsub(separator_pattern .. "[^" .. separator_pattern .. "]*$", "")
+	local plugins = wezterm.plugin.list()
+	for _, plugin in ipairs(plugins) do
+		if plugin.name:find("wezterm%-sessions") then
+			plugin_dir = plugin.plugin_dir:gsub(separator_pattern .. "[^" .. separator_pattern .. "]*$", "")
+			break
+		end
+	end
 	package.path = package.path
 		.. ";"
 		.. plugin_dir
