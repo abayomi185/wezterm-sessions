@@ -40,6 +40,7 @@ local function enable_sub_modules()
 		.. "plugin"
 		.. separator
 		.. "?.lua"
+	wezterm.log_info("Updated package.path: " .. package.path)
 end
 enable_sub_modules()
 
