@@ -10,38 +10,17 @@ local plugin_dir
 --- checks if the user is on windows
 local is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc"
 local separator = is_windows and "\\" or "/"
-local separator_pattern = is_windows and "\\\\" or "/"
 
---- Checks if the plugin directory exists
---- @return boolean
-local function directory_exists(path)
-	local success, result = pcall(wezterm.read_dir, plugin_dir .. path)
-	return success and result
-end
-
---- Returns the name of the package, used when requiring modules
---- @return string | nil
-local function get_require_path()
-	local path = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
-	wezterm.log_info("Checking plugin path: " .. plugin_dir .. separator .. path)
-	wezterm.log_info("Directory exists: " .. tostring(directory_exists(path)))
-	return directory_exists(path) and path or path
-end
+local project_path = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
 
 --- Adds the wezterm plugin directory to the lua path
 local function enable_sub_modules()
-	local plugins = wezterm.plugin.list()
-	for _, plugin in ipairs(plugins) do
-		if plugin.component:find("wezterm-sessions") then
-			plugin_dir = plugin.plugin_dir:gsub(separator_pattern .. "[^" .. separator_pattern .. "]*$", "")
-			break
-		end
-	end
+	plugin_dir = wezterm.plugin.list()[1].plugin_dir:gsub(separator .. "[^" .. separator .. "]*$", "")
 	package.path = package.path
 		.. ";"
 		.. plugin_dir
 		.. separator
-		.. get_require_path()
+		.. project_path
 		.. separator
 		.. "plugin"
 		.. separator
@@ -55,7 +34,7 @@ local ws_mod = require("workspace")
 local fs_mod = require("fs")
 
 --- The directory where we store the workspaces state
-local save_state_dir = plugin_dir .. separator .. get_require_path() .. separator .. "state" .. separator
+local save_state_dir = plugin_dir .. separator .. project_path .. separator .. "state" .. separator
 
 --- Loads the saved json file matching the current workspace.
 function pub.restore_state(window)
