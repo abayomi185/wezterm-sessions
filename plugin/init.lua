@@ -21,8 +21,8 @@ end
 --- Returns the name of the package, used when requiring modules
 --- @return string
 local function get_require_path()
-	local path1 = "httpssCssZssZsgithubsDscomsZsabidibosZswezterm-sessions"
-	local path2 = "httpssCssZssZsgithubsDscomsZsabidibosZswezterm-sessionsZs"
+	local path1 = "httpssCssZssZsgithubsDscomsZsabayomi185Zswezterm-sessions"
+	local path2 = "httpssCssZssZsgithubsDscomsZsabayomi185Zswezterm-sessionsZs"
 	return directory_exists(path2) and path2 or path1
 end
 
