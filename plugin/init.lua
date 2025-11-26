@@ -19,11 +19,12 @@ local function directory_exists(path)
 end
 
 --- Returns the name of the package, used when requiring modules
---- @return string
+--- @return string | nil
 local function get_require_path()
-	local path1 = "httpssCssZssZsgithubsDscomsZsabayomi185Zswezterm-sessions"
-	local path2 = "httpssCssZssZsgithubsDscomsZsabayomi185Zswezterm-sessionsZs"
-	return directory_exists(path2) and path2 or path1
+	local path1 = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
+	wezterm.log_info("Checking plugin path: " .. plugin_dir .. separator .. path1)
+	wezterm.log_info("Directory exists: " .. tostring(directory_exists(path1)))
+	return directory_exists(path1) and path1 or path1
 end
 
 --- Adds the wezterm plugin directory to the lua path
