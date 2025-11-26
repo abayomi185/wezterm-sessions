@@ -35,6 +35,7 @@ local fs_mod = require("fs")
 
 --- The directory where we store the workspaces state
 local save_state_dir = plugin_dir .. separator .. project_path .. separator .. "state" .. separator
+wezterm.log_info("Using save_state_dir: " .. save_state_dir)
 
 --- Loads the saved json file matching the current workspace.
 function pub.restore_state(window)
