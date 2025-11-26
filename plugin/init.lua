@@ -32,7 +32,7 @@ end
 local function enable_sub_modules()
 	local plugins = wezterm.plugin.list()
 	for _, plugin in ipairs(plugins) do
-		if plugin.name:find("wezterm%-sessions") then
+		if plugin.component:find("wezterm-sessions") then
 			plugin_dir = plugin.plugin_dir:gsub(separator_pattern .. "[^" .. separator_pattern .. "]*$", "")
 			break
 		end
