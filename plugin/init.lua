@@ -10,6 +10,7 @@ local plugin_dir
 --- checks if the user is on windows
 local is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc"
 local separator = is_windows and "\\" or "/"
+local separator_pattern = is_windows and "\\\\" or "/"
 
 --- Checks if the plugin directory exists
 --- @return boolean
@@ -21,15 +22,15 @@ end
 --- Returns the name of the package, used when requiring modules
 --- @return string | nil
 local function get_require_path()
-	local path1 = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
-	wezterm.log_info("Checking plugin path: " .. plugin_dir .. separator .. path1)
-	wezterm.log_info("Directory exists: " .. tostring(directory_exists(path1)))
-	return directory_exists(path1) and path1 or path1
+	local path = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
+	wezterm.log_info("Checking plugin path: " .. plugin_dir .. separator .. path)
+	wezterm.log_info("Directory exists: " .. tostring(directory_exists(path)))
+	return directory_exists(path) and path or path
 end
 
 --- Adds the wezterm plugin directory to the lua path
 local function enable_sub_modules()
-	plugin_dir = wezterm.plugin.list()[1].plugin_dir:gsub(separator .. "[^" .. separator .. "]*$", "")
+	plugin_dir = wezterm.plugin.list()[0].plugin_dir:gsub(separator_pattern .. "[^" .. separator_pattern .. "]*$", "")
 	package.path = package.path
 		.. ";"
 		.. plugin_dir
