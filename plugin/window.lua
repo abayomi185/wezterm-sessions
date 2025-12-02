@@ -52,14 +52,27 @@ function pub.restore_window(window, win_data)
 		end
 	end
 
+	-- Add a small delay to ensure initial pane exit has time to process
+	wezterm.sleep_ms(500)
+
 	for _, tab_data in ipairs(win_data.tabs) do
 		local tab = tab_mod.restore_tab(window, tab_data)
-		if tab_data.is_active then
+		if tab and tab_data.is_active then
 			active_tab = tab
 		end
 	end
 
-	active_tab:activate()
+	-- Safely activate the previously active tab
+	if active_tab then
+		local success, err = pcall(function()
+			active_tab:activate()
+		end)
+		if not success then
+			wezterm.log_warn("Failed to activate tab: " .. tostring(err))
+		end
+	else
+		wezterm.log_warn("No active tab found to activate after restoration")
+	end
 end
 
 return pub

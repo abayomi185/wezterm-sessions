@@ -41,10 +41,27 @@ function pub.restore_tab(window, tab_data)
 	end
 
 	-- Activate the new tab before creating panes
-	new_tab:activate()
+	local success, err = pcall(function()
+		new_tab:activate()
+	end)
+
+	if not success then
+		wezterm.log_error("Failed to activate new tab: " .. tostring(err))
+		return nil
+	end
+
+	-- Add a small delay to ensure tab is fully activated
+	wezterm.sleep_ms(500)
 
 	-- Recreate panes within this tab
-	pub.restore_panes(window, new_tab, tab_data)
+	success, err = pcall(function()
+		pub.restore_panes(window, new_tab, tab_data)
+	end)
+
+	if not success then
+		wezterm.log_error("Failed to restore panes in tab: " .. tostring(err))
+		-- Still return the tab even if pane restoration fails
+	end
 
 	return new_tab
 end
@@ -146,10 +163,38 @@ local function split_vertically(window, tab, tab_height, ipanes, ipane, panes, v
 	pane_mod.restore_pane(window, new_pane, vpane)
 end
 
+--- Safely activates a pane with error handling
+--- @param p any: The pane to activate
+--- @return boolean: true if activation succeeded, false otherwise
 local function activate_panel(p)
-	wezterm.sleep_ms(2000)
-	p:activate()
-	wezterm.sleep_ms(2000)
+	if not p then
+		wezterm.log_warn("activate_panel: pane is nil")
+		return false
+	end
+
+	-- Check if pane still exists in mux before activating
+	local pane_id = p:pane_id()
+	local mux = wezterm.mux
+	local mux_pane = mux.get_pane(pane_id)
+
+	if not mux_pane then
+		wezterm.log_warn("activate_panel: pane id " .. tostring(pane_id) .. " not found in mux, skipping activation")
+		return false
+	end
+
+	-- Try to activate with error handling
+	local success, err = pcall(function()
+		wezterm.sleep_ms(300)
+		p:activate()
+		wezterm.sleep_ms(300)
+	end)
+
+	if not success then
+		wezterm.log_warn("activate_panel: failed to activate pane " .. tostring(pane_id) .. ": " .. tostring(err))
+		return false
+	end
+
+	return true
 end
 
 --- Restores all tab panes from the provided tab data
@@ -175,27 +220,45 @@ function pub.restore_panes(window, tab, tab_data)
 			pane_mod.restore_pane(window, p, tab_data.panes[1])
 		end
 
-		activate_panel(p)
-
-		-- Does the current pane have a horizontal or vertical split?
+		-- Only activate if we need to perform splits from this pane
 		local hpane, hj = find_horizontal_split(ipanes[idx], tab_data)
 		local vpane, vj = find_vertical_split(ipanes[idx], tab_data)
 
+		-- Skip activation if there are no splits to perform
+		if hpane == nil and vpane == nil then
+			goto continue
+		end
+
+		-- Activate the pane before splitting
+		if not activate_panel(p) then
+			wezterm.log_error("Failed to activate pane for splitting, skipping splits for this pane")
+			goto continue
+		end
+
 		-- Now we try to understand from splits indexes which split should be performed first
-		if hpane ~= nil and (vj == nil or vj < hj) then -- I though here should be vj < hj but it works this way
+		if hpane ~= nil and (vj == nil or vj < hj) then
 			split_horizontally(window, tab, tab_width, ipanes, ipanes[idx], panes, hpane)
-			activate_panel(p)
+			-- Re-activate parent pane if we need to do another split
 			if vpane ~= nil then
-				split_vertically(window, tab, tab_height, ipanes, ipanes[idx], panes, vpane)
-				activate_panel(p)
+				if activate_panel(p) then
+					split_vertically(window, tab, tab_height, ipanes, ipanes[idx], panes, vpane)
+				else
+					wezterm.log_warn("Failed to re-activate pane for vertical split, skipping")
+				end
 			end
 		elseif vpane ~= nil then
 			split_vertically(window, tab, tab_height, ipanes, ipanes[idx], panes, vpane)
-			activate_panel(p)
+			-- Re-activate parent pane if we need to do another split
 			if hpane ~= nil then
-				split_horizontally(window, tab, tab_width, ipanes, ipanes[idx], panes, hpane)
+				if activate_panel(p) then
+					split_horizontally(window, tab, tab_width, ipanes, ipanes[idx], panes, hpane)
+				else
+					wezterm.log_warn("Failed to re-activate pane for horizontal split, skipping")
+				end
 			end
 		end
+
+		::continue::
 	end
 
 	wezterm.log_info("Finished")
