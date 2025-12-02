@@ -55,7 +55,7 @@ function pub.load_state(window, pane)
 						inner_pane
 					)
 					-- we need to wait for the switch to complete
-					wezterm.sleep_ms(10000)
+					wezterm.sleep_ms(5000)
 					window:perform_action(act.EmitEvent("wezterm-sessions-switch"), pane)
 				end
 			end),

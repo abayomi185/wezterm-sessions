@@ -147,9 +147,9 @@ local function split_vertically(window, tab, tab_height, ipanes, ipane, panes, v
 end
 
 local function activate_panel(p)
-	wezterm.sleep_ms(200)
+	wezterm.sleep_ms(2000)
 	p:activate()
-	wezterm.sleep_ms(200)
+	wezterm.sleep_ms(2000)
 end
 
 --- Restores all tab panes from the provided tab data
