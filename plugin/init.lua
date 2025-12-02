@@ -14,7 +14,7 @@ local is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc"
 local separator = is_windows and "\\" or "/"
 
 function pub.init()
-	local opts = { keywords = { "https", "abayomi185", "wezterm-sessions" }, auto = true }
+	local opts = { keywords = { "https", "abayomi185", "wezterm", "sessions" }, auto = true }
 	plugin_dir = dev.setup(opts)
 	wezterm.log_info("Plugin dir: " .. plugin_dir)
 end
