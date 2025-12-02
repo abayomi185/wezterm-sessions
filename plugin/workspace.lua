@@ -48,17 +48,17 @@ function pub.recreate_workspace(window, workspace_name, workspace_data)
 	end
 
 	-- Recreate windows tabs and panes from the saved state
-	for idx, win_data in ipairs(workspace_data.windows) do
-		if idx == 1 then
-			-- The first window will be restored in the current window
-			win_mod.restore_window(window, win_data)
-		else
-			-- All other windows will be spawned in a new window
-			local _, _, w = wezterm.mux.spawn_window({
-				workspace = workspace_name,
-			})
-			win_mod.restore_window(w:gui_window(), win_data)
-		end
+	for _, win_data in ipairs(workspace_data.windows) do
+		-- if idx == 1 then
+		-- 	-- The first window will be restored in the current window
+		-- 	win_mod.restore_window(window, win_data)
+		-- else
+		-- All other windows will be spawned in a new window
+		local _, _, w = wezterm.mux.spawn_window({
+			workspace = workspace_name,
+		})
+		win_mod.restore_window(w:gui_window(), win_data)
+		-- end
 	end
 
 	wezterm.log_info("Workspace recreated with new tabs and panes based on saved state.")
