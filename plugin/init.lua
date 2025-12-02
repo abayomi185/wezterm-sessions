@@ -64,7 +64,7 @@ function pub.load_state(window, pane)
 					)
 					-- we need to wait for the switch to complete
 					wezterm.sleep_ms(2000)
-					window:perform_action(act.EmitEvent("wezter-sessions-switch"), pane)
+					window:perform_action(act.EmitEvent("wezterm-sessions-switch"), pane)
 				end
 			end),
 			title = "Choose Workspace",
@@ -78,7 +78,7 @@ function pub.load_state(window, pane)
 end
 
 --- After the workspace switch is complete we restore the workspace
-wezterm.on("wezter-sessions-switch", function(window, _)
+wezterm.on("wezterm-sessions-switch", function(window, _)
 	local workspace_name = window:active_workspace()
 	pub.restore_state(window)
 	wezterm.emit("wezterm-sessions.load.end", workspace_name)
