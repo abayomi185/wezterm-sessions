@@ -1,6 +1,8 @@
 local wezterm = require("wezterm")
 local act = wezterm.action
 
+local dev = wezterm.plugin.require("https://github.com/chrisgve/dev.wezterm")
+
 ---@class public_module
 local pub = {}
 
@@ -11,30 +13,20 @@ local plugin_dir
 local is_windows = wezterm.target_triple == "x86_64-pc-windows-msvc"
 local separator = is_windows and "\\" or "/"
 
-local project_path = "httpssCssZssZsgithubsDscomsZsabayomi185sZswezterm-sessions"
-
---- Adds the wezterm plugin directory to the lua path
-local function enable_sub_modules()
-	plugin_dir = wezterm.plugin.list()[1].plugin_dir:gsub(separator .. "[^" .. separator .. "]*$", "")
-	package.path = package.path
-		.. ";"
-		.. plugin_dir
-		.. separator
-		.. project_path
-		.. separator
-		.. "plugin"
-		.. separator
-		.. "?.lua"
-	wezterm.log_info("Updated package.path: " .. package.path)
+function pub.init()
+	local opts = { keywords = { "https", "abayomi185", "wezterm-sessions" }, auto = true }
+	plugin_dir = dev.setup(opts)
+	wezterm.log_info("Plugin dir: " .. plugin_dir)
 end
-enable_sub_modules()
+
+pub.init()
 
 --- Now we can import local stuff
 local ws_mod = require("workspace")
 local fs_mod = require("fs")
 
 --- The directory where we store the workspaces state
-local save_state_dir = plugin_dir .. separator .. project_path .. separator .. "state" .. separator
+local save_state_dir = plugin_dir .. separator .. "state" .. separator
 wezterm.log_info("Using save_state_dir: " .. save_state_dir)
 
 --- Loads the saved json file matching the current workspace.
